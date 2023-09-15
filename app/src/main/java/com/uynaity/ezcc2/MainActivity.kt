@@ -12,26 +12,40 @@ import java.net.HttpURLConnection
 import java.net.URL
 import android.content.Context
 import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
+import android.widget.ImageButton
+import android.widget.Spinner
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var courseCodeEditText: EditText
     private lateinit var searchButton: Button
+    private lateinit var clearButton: ImageButton
     private lateinit var sem1Stat: TextView
     private lateinit var sem1Data: TextView
     private lateinit var sem2Stat: TextView
     private lateinit var sem2Data: TextView
     private var backPressedTime: Long = 0
     private val backPressedInterval = 2000
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         courseCodeEditText = findViewById(R.id.courseCode)
         searchButton = findViewById(R.id.search)
+        clearButton = findViewById(R.id.clearButton)
         sem1Stat = findViewById(R.id.sem1Stat)
         sem1Data = findViewById(R.id.Sem1Data)
         sem2Stat = findViewById(R.id.Sem2Stat)
         sem2Data = findViewById(R.id.Sem2Data)
+
+        val spinner = findViewById<Spinner>(R.id.spinner)
+        val adapter = ArrayAdapter.createFromResource(
+            this, R.array.spinner_options, // 你的字符串数组资源
+            android.R.layout.simple_spinner_item
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
         searchButton.setOnClickListener {
             Thread {
                 try {
@@ -40,8 +54,15 @@ class MainActivity : AppCompatActivity() {
                     sem1Stat.text = e.message
                 }
             }.start()
+
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(searchButton.windowToken, 0)
+        }
+        clearButton.setOnClickListener {
+            courseCodeEditText.text.clear()
+            courseCodeEditText.requestFocus()
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(courseCodeEditText, InputMethodManager.SHOW_IMPLICIT)
         }
     }
 
@@ -57,13 +78,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getTableData(c: String?): MutableList<MutableList<Map<String, Any>>> {
-        if (c == "") {
-            runOnUiThread {
-                Toast.makeText(this, "请输入课程代码", Toast.LENGTH_SHORT).show()
-            }
-            return mutableListOf()
-        }
-        val upC = c?.uppercase()
+        val spinner = findViewById<Spinner>(R.id.spinner)
+        val selectedValue = spinner.selectedItem.toString()
+        val mergeC = "$selectedValue$c"
         val url = URL("https://sweb.hku.hk/ccacad/ccc_appl/enrol_stat.html")
         val conn = url.openConnection() as HttpURLConnection
         conn.requestMethod = "GET"
@@ -96,7 +113,7 @@ class MainActivity : AppCompatActivity() {
                 continue
             }
 
-            if (!tds[0].text().contains(upC!!)) {
+            if (!tds[0].text().contains(mergeC!!)) {
                 continue
             }
 
@@ -162,5 +179,4 @@ class MainActivity : AppCompatActivity() {
         str += "\n"
         return str
     }
-
 }

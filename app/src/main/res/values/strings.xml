@@ -2,4 +2,11 @@
     <string name="app_name">EZCC</string>
     <string name="search">Search</string>
     <string name="course_code">Course code</string>
+
+    <string-array name="spinner_options">
+        <item>CCST</item>
+        <item>CCHU</item>
+        <item>CCGL</item>
+        <item>CCCH</item>
+    </string-array>
 </resources>
