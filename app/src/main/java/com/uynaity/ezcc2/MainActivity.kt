@@ -10,6 +10,8 @@ import android.widget.Toast
 import org.jsoup.Jsoup
 import java.net.HttpURLConnection
 import java.net.URL
+import android.content.Context
+import android.view.inputmethod.InputMethodManager
 
 
 class MainActivity : AppCompatActivity() {
@@ -38,6 +40,8 @@ class MainActivity : AppCompatActivity() {
                     sem1Stat.text = e.message
                 }
             }.start()
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(searchButton.windowToken, 0)
         }
     }
 
