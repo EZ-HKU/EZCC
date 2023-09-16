@@ -12,17 +12,19 @@ import org.jsoup.Jsoup
 import java.net.HttpURLConnection
 import java.net.URL
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.Spinner
-
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")
 class MainActivity : AppCompatActivity() {
     private lateinit var courseCodeEditText: EditText
     private lateinit var searchButton: Button
     private lateinit var clearButton: ImageButton
+    private lateinit var refreshButton: ImageButton
     private lateinit var switch1: Switch
     private lateinit var sem1Stat: TextView
     private lateinit var sem1Data: TextView
@@ -35,23 +37,18 @@ class MainActivity : AppCompatActivity() {
     private var caches = mutableListOf(
         "", ""
     )
-
     private var cachesSorted = mutableListOf(
         "", ""
     )
-
     private var stats = mutableListOf(
         "", ""
     )
-
     private var semList = mutableListOf(
         mutableListOf<Map<String, Any>>(), mutableListOf()
     )
-
     private var sortedSemList = mutableListOf(
         mutableListOf<Map<String, Any>>(), mutableListOf()
     )
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         courseCodeEditText = findViewById(R.id.courseCode)
         searchButton = findViewById(R.id.search)
         clearButton = findViewById(R.id.clearButton)
+        refreshButton = findViewById(R.id.refresh)
         switch1 = findViewById(R.id.switch1)
         sem1Stat = findViewById(R.id.sem1Stat)
         sem1Data = findViewById(R.id.Sem1Data)
@@ -72,33 +70,41 @@ class MainActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
 
+        updateTableData()
+
         searchButton.setOnClickListener {
-            Thread {
-                try {
-                    semList = getTableData(courseCodeEditText.text.toString())
-                    sortedSemList = semList.map { sem ->
-                        sem.sortedByDescending { it["空余数量"] as Int }.toMutableList()
-                    }.toMutableList()
-                    if (isSorted) {
-                        judgement()
-                    } else {
-                        judgement()
-                    }
-                    printSem()
-                } catch (e: Exception) {
-                    sem1Stat.text = e.message
-                }
-            }.start()
+            judgement()
+            printSem()
 
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(searchButton.windowToken, 0)
         }
+
+        courseCodeEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                courseCodeEditText.requestFocus()
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                courseCodeEditText.requestFocus()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                judgement()
+                printSem()
+            }
+        })
 
         clearButton.setOnClickListener {
             courseCodeEditText.text.clear()
             courseCodeEditText.requestFocus()
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(courseCodeEditText, InputMethodManager.SHOW_IMPLICIT)
+        }
+
+        refreshButton.setOnClickListener {
+            updateTableData()
+            Toast.makeText(this, "刷新成功", Toast.LENGTH_SHORT).show()
         }
 
         switch1.setOnCheckedChangeListener { _, isChecked ->
@@ -120,10 +126,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getTableData(c: String?): MutableList<MutableList<Map<String, Any>>> {
-        val spinner = findViewById<Spinner>(R.id.spinner)
-        val selectedValue = spinner.selectedItem.toString()
-        val mergeC = "$selectedValue$c"
+    private fun updateTableData() {
+        Thread {
+            try {
+                semList = getTableData()
+                sortedSemList = semList.map { sem ->
+                    sem.sortedByDescending { it["空余数量"] as Int }.toMutableList()
+                }.toMutableList()
+            } catch (e: Exception) {
+                sem1Stat.text = e.message
+            }
+        }.start()
+    }
+
+    private fun getTableData(): MutableList<MutableList<Map<String, Any>>> {
         val url = URL("https://sweb.hku.hk/ccacad/ccc_appl/enrol_stat.html")
         val conn = url.openConnection() as HttpURLConnection
         conn.requestMethod = "GET"
@@ -137,14 +153,15 @@ class MainActivity : AppCompatActivity() {
 
         val doc = Jsoup.parse(url, 3000)
         val table = doc.select("table").first()
-
         val semList = mutableListOf(
             mutableListOf<Map<String, Any>>(), mutableListOf()
         )
-
         var sem = 0
+        var tds = table?.select("tr")!!
 
-        for (row in table?.select("tr")!!) {
+        tds.removeAt(0)
+
+        for (row in tds) {
             val tds = row?.select("td")
 
             if (tds?.size!! < 6) {
@@ -156,46 +173,37 @@ class MainActivity : AppCompatActivity() {
                 continue
             }
 
-            if (!tds[0].text().contains(mergeC!!)) {
-                continue
-            }
+            val data1 = tds[0].text()
+            val data2 = tds[4].text().toInt()
+            val data3 = tds[5].text().toInt()
+            val data4 = tds[2].text()
+            var stat = ""
 
-            if (!tds[2].text().contains("X")) {
-                val data1 = tds[0].text()
-                val data2 = tds[4].text().toInt()
-                val data3 = tds[5].text().toInt()
-                var stat = ""
-
-                if (data2 > data3) {
-                    stat = "尚有余，可选\n"
-                } else if (data3 - data2 <= 3) {
-                    stat = "少量不足，可备选\n"
-                } else if (data3 - data2 > 3) {
-                    stat = "严重不足，建议更换\n"
-                }
-                val dataSet = mapOf(
-                    "课程代码" to data1,
-                    "空余数量" to data2,
-                    "等待批准" to data3,
-                    "选课建议" to stat
-                )
-                semList[sem].add(dataSet)
+            if (data2 > data3) {
+                stat = "尚有余，可选\n"
+            } else if (data3 - data2 <= 3) {
+                stat = "少量不足，可备选\n"
+            } else if (data3 - data2 > 3) {
+                stat = "严重不足，建议更换\n"
             }
+            val dataSet = mapOf(
+                "课程代码" to data1, "班级代码" to data4, "空余数量" to data2, "等待批准" to data3, "选课建议" to stat
+            )
+            semList[sem].add(dataSet)
         }
         return semList
     }
-
 
     @SuppressLint("SetTextI18n")
     private fun judgement() {
         for (index in semList.indices) {
             val subList = semList[index]
-            if (subList.isEmpty()) {
+            caches[index] = formatSem(subList)
+            if (caches[index] == "\n") {
                 stats[index] = "未在Sem ${index + 1}中找到相关课程 :-("
             } else {
                 stats[index] = "Sem ${index + 1}中找到以下相关课程:"
             }
-            caches[index] = formatSem(subList)
         }
 
         for (index in sortedSemList.indices) {
@@ -208,6 +216,13 @@ class MainActivity : AppCompatActivity() {
     private fun formatSem(sem: MutableList<Map<String, Any>>): String {
         var str = ""
         for (i in sem) {
+            val spinner = findViewById<Spinner>(R.id.spinner)
+            val selectedValue = spinner.selectedItem.toString()
+            val c = courseCodeEditText.text.toString()
+            val mergeC = "$selectedValue$c"
+            if (!i["课程代码"].toString().contains(mergeC)) {
+                continue
+            }
             for (j in i) {
                 str += "${j.key}: ${j.value}\n"
             }
