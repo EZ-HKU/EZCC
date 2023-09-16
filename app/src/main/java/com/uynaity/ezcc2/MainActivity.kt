@@ -15,6 +15,7 @@ import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
+// import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.Spinner
@@ -70,7 +71,9 @@ class MainActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
 
+        Toast.makeText(this, "正在更新数据库", Toast.LENGTH_SHORT).show()
         updateTableData()
+        Toast.makeText(this, "数据库更新成功", Toast.LENGTH_SHORT).show()
 
         searchButton.setOnClickListener {
             judgement()
@@ -94,6 +97,17 @@ class MainActivity : AppCompatActivity() {
                 printSem()
             }
         })
+
+//        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(
+//                parent: AdapterView<*>, view: android.view.View, position: Int, id: Long
+//            ) {
+//                judgement()
+//                printSem()
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>) {}
+//        }
 
         clearButton.setOnClickListener {
             courseCodeEditText.text.clear()
@@ -157,14 +171,14 @@ class MainActivity : AppCompatActivity() {
             mutableListOf<Map<String, Any>>(), mutableListOf()
         )
         var sem = 0
-        var tds = table?.select("tr")!!
+        val tds = table?.select("tr")!!
 
         tds.removeAt(0)
 
         for (row in tds) {
-            val tds = row?.select("td")
+            val td = row?.select("td")
 
-            if (tds?.size!! < 6) {
+            if (td?.size!! < 6) {
                 if (row.text() == "First Semester") {
                     sem = 0
                 } else if (row.text() == "Second Semester") {
@@ -173,10 +187,10 @@ class MainActivity : AppCompatActivity() {
                 continue
             }
 
-            val data1 = tds[0].text()
-            val data2 = tds[4].text().toInt()
-            val data3 = tds[5].text().toInt()
-            val data4 = tds[2].text()
+            val data1 = td[0].text()
+            val data2 = td[4].text().toInt()
+            val data3 = td[5].text().toInt()
+            val data4 = td[2].text()
             var stat = ""
 
             if (data2 > data3) {
@@ -187,7 +201,11 @@ class MainActivity : AppCompatActivity() {
                 stat = "严重不足，建议更换\n"
             }
             val dataSet = mapOf(
-                "课程代码" to data1, "班级代码" to data4, "空余数量" to data2, "等待批准" to data3, "选课建议" to stat
+                "课程代码" to data1,
+                "班级代码" to data4,
+                "空余数量" to data2,
+                "等待批准" to data3,
+                "选课建议" to stat
             )
             semList[sem].add(dataSet)
         }
