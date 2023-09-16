@@ -145,4 +145,15 @@
             app:srcCompat="@android:drawable/ic_menu_delete" />
     </LinearLayout>
 
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:text="空余量↓"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout7"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/search"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
