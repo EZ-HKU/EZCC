@@ -6,29 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/search"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:onClick="postString"
-        android:text="@string/search"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
-
     <LinearLayout
         android:id="@+id/linearLayout7"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search">
+        app:layout_constraintTop_toBottomOf="@id/linearLayout">
 
 
         <LinearLayout
@@ -41,7 +29,7 @@
                 android:id="@+id/sem1Stat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="等待获取Sem1状态" />
+                android:text="@string/sem1" />
 
             <View
                 android:layout_width="match_parent"
@@ -59,7 +47,7 @@
                     android:id="@+id/Sem1Data"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="等待获取Sem1数据" />
+                    android:text="@string/sem1Data" />
             </ScrollView>
         </LinearLayout>
 
@@ -82,7 +70,7 @@
                 android:id="@+id/Sem2Stat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="等待获取Sem2状态" />
+                android:text="@string/sem2Stat" />
 
             <View
                 android:layout_width="match_parent"
@@ -100,7 +88,7 @@
                     android:id="@+id/Sem2Data"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="等待获取Sem2数据" />
+                    android:text="@string/sem2Data" />
             </ScrollView>
         </LinearLayout>
     </LinearLayout>
@@ -141,30 +129,54 @@
             android:id="@+id/clearButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="Clear"
+            android:contentDescription="@string/clear"
             app:srcCompat="@android:drawable/ic_menu_delete" />
     </LinearLayout>
-
-    <Switch
-        android:id="@+id/switch1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:text="空余量↓"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout7"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/search"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
 
     <ImageButton
         android:id="@+id/refresh"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="refresh"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/refresh"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout7"
-        app:layout_constraintEnd_toStartOf="@+id/search"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout6"
         app:srcCompat="@android:drawable/ic_popup_sync" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout7"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/refresh"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout6">
+
+        <Switch
+            android:id="@+id/switch1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/noOfEmpty" />
+
+        <Switch
+            android:id="@+id/switch2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/exceptX" />
+
+        <Switch
+            android:id="@+id/switch3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/viewAvailable" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

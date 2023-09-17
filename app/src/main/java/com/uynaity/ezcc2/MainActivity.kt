@@ -3,7 +3,6 @@ package com.uynaity.ezcc2
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
 import android.widget.Switch
 import android.widget.EditText
 import android.widget.TextView
@@ -23,10 +22,11 @@ import android.widget.Spinner
 @SuppressLint("UseSwitchCompatOrMaterialCode")
 class MainActivity : AppCompatActivity() {
     private lateinit var courseCodeEditText: EditText
-    private lateinit var searchButton: Button
     private lateinit var clearButton: ImageButton
     private lateinit var refreshButton: ImageButton
     private lateinit var switch1: Switch
+    private lateinit var switch2: Switch
+    private lateinit var switch3: Switch
     private lateinit var sem1Stat: TextView
     private lateinit var sem1Data: TextView
     private lateinit var sem2Stat: TextView
@@ -34,7 +34,8 @@ class MainActivity : AppCompatActivity() {
     private var backPressedTime: Long = 0
     private val backPressedInterval = 2000
     private var isSorted = false
-    private var okGet = false
+    private var isExcept = false
+    private var isAvailable = false
 
     private var caches = mutableListOf(
         "", ""
@@ -56,10 +57,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         courseCodeEditText = findViewById(R.id.courseCode)
-        searchButton = findViewById(R.id.search)
         clearButton = findViewById(R.id.clearButton)
         refreshButton = findViewById(R.id.refresh)
         switch1 = findViewById(R.id.switch1)
+        switch2 = findViewById(R.id.switch2)
+        switch3 = findViewById(R.id.switch3)
         sem1Stat = findViewById(R.id.sem1Stat)
         sem1Data = findViewById(R.id.Sem1Data)
         sem2Stat = findViewById(R.id.Sem2Stat)
@@ -76,13 +78,6 @@ class MainActivity : AppCompatActivity() {
         updateTableData()
         Toast.makeText(this, "数据库更新成功", Toast.LENGTH_SHORT).show()
 
-        searchButton.setOnClickListener {
-            judgement()
-            printSem()
-
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(searchButton.windowToken, 0)
-        }
 
         courseCodeEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -131,6 +126,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        switch2.setOnCheckedChangeListener { _, isChecked ->
+            isExcept = isChecked
+            judgement()
+            printSem()
+        }
+
+        switch3.setOnCheckedChangeListener { _, isChecked ->
+            isAvailable = isChecked
+            judgement()
+            printSem()
+        }
     }
 
     @Deprecated("Deprecated in Java")
@@ -155,7 +161,6 @@ class MainActivity : AppCompatActivity() {
                 sem1Stat.text = e.message
             }
         }.start()
-        okGet = true
     }
 
     private fun getTableData(): MutableList<MutableList<Map<String, Any>>> {
@@ -219,9 +224,6 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun judgement() {
-        if (!okGet) {
-            return
-        }
         for (index in semList.indices) {
             val subList = semList[index]
             caches[index] = formatSem(subList)
@@ -244,6 +246,17 @@ class MainActivity : AppCompatActivity() {
             if (!i["课程代码"].toString().contains(mergeC)) {
                 continue
             }
+            if (isExcept) {
+                if (i["班级代码"].toString().contains("X")) {
+                    continue
+                }
+            }
+            if (isAvailable) {
+                if (i["空余数量"] == 0) {
+                    continue
+                }
+            }
+
             for (j in i) {
                 str += "${j.key}: ${j.value}\n"
             }

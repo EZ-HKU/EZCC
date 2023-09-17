@@ -2,6 +2,15 @@
     <string name="app_name">EZCC</string>
     <string name="search">搜索</string>
     <string name="course_code">课程代码</string>
+    <string name="sem1">等待获取Sem1状态</string>
+    <string name="clear">Clear</string>
+    <string name="refresh">refresh</string>
+    <string name="sem1Data">等待获取Sem1数据</string>
+    <string name="sem2Data">等待获取Sem2数据</string>
+    <string name="sem2Stat">等待获取Sem2状态</string>
+    <string name="noOfEmpty">空余量↓</string>
+    <string name="exceptX">排除X班级</string>
+    <string name="viewAvailable">仅看有余</string>
 
     <string-array name="spinner_options">
         <item>CCST</item>
