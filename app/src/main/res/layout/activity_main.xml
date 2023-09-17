@@ -116,45 +116,33 @@
             android:id="@+id/courseCode"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="1.5"
             android:autofillHints=""
             android:gravity="center"
             android:hint="@string/course_code"
             android:inputType="number"
             android:maxLength="4"
-            android:minHeight="48dp"
-            android:textColorHint="#8D6E63" />
+            android:minHeight="48dp" />
 
-        <ImageButton
-            android:id="@+id/clearButton"
+        <Button
+            android:id="@+id/refresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/clear"
-            app:srcCompat="@android:drawable/ic_menu_delete" />
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="@string/refresh"
+            android:text="刷新" />
     </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/refresh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="@string/refresh"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout7"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout6"
-        app:srcCompat="@android:drawable/ic_popup_sync" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout7"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/refresh"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout6">
 
         <Switch

@@ -10,20 +10,20 @@ import android.widget.Toast
 import org.jsoup.Jsoup
 import java.net.HttpURLConnection
 import java.net.URL
-import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ImageButton
+import android.widget.Button
 import android.widget.Spinner
+import android.content.Context
+import android.os.VibrationEffect
+import android.os.Vibrator
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")
 class MainActivity : AppCompatActivity() {
     private lateinit var courseCodeEditText: EditText
-    private lateinit var clearButton: ImageButton
-    private lateinit var refreshButton: ImageButton
+    private lateinit var refreshButton: Button
     private lateinit var switch1: Switch
     private lateinit var switch2: Switch
     private lateinit var switch3: Switch
@@ -53,11 +53,21 @@ class MainActivity : AppCompatActivity() {
         mutableListOf<Map<String, Any>>(), mutableListOf()
     )
 
+    object VibrationUtil {
+        fun vibrate(context: Context, milliseconds: Long) {
+            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            if (vibrator.hasVibrator()) {
+                val vibrationEffect =
+                    VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE)
+                vibrator.vibrate(vibrationEffect)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         courseCodeEditText = findViewById(R.id.courseCode)
-        clearButton = findViewById(R.id.clearButton)
         refreshButton = findViewById(R.id.refresh)
         switch1 = findViewById(R.id.switch1)
         switch2 = findViewById(R.id.switch2)
@@ -96,7 +106,8 @@ class MainActivity : AppCompatActivity() {
 
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long
+            ) {
                 while (semList[0].isEmpty() || semList[1].isEmpty()) {
                     Thread.sleep(100)
                 }
@@ -107,20 +118,17 @@ class MainActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        clearButton.setOnClickListener {
-            courseCodeEditText.text.clear()
-            courseCodeEditText.requestFocus()
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(courseCodeEditText, InputMethodManager.SHOW_IMPLICIT)
-        }
-
         refreshButton.setOnClickListener {
             updateTableData()
+            judgement()
+            printSem()
+            VibrationUtil.vibrate(this, 50)
             Toast.makeText(this, "刷新成功", Toast.LENGTH_SHORT).show()
         }
 
         switch1.setOnCheckedChangeListener { _, isChecked ->
             isSorted = isChecked
+            VibrationUtil.vibrate(this, 50)
             if (semList[0].isNotEmpty() && semList[1].isNotEmpty()) {
                 printSem()
             }
@@ -128,12 +136,14 @@ class MainActivity : AppCompatActivity() {
 
         switch2.setOnCheckedChangeListener { _, isChecked ->
             isExcept = isChecked
+            VibrationUtil.vibrate(this, 50)
             judgement()
             printSem()
         }
 
         switch3.setOnCheckedChangeListener { _, isChecked ->
             isAvailable = isChecked
+            VibrationUtil.vibrate(this, 50)
             judgement()
             printSem()
         }
