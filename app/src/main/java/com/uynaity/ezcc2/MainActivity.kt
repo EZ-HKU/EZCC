@@ -15,7 +15,7 @@ import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
-// import android.widget.AdapterView
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.Spinner
@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private var backPressedTime: Long = 0
     private val backPressedInterval = 2000
     private var isSorted = false
+    private var okGet = false
 
     private var caches = mutableListOf(
         "", ""
@@ -98,16 +99,18 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-//        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(
-//                parent: AdapterView<*>, view: android.view.View, position: Int, id: Long
-//            ) {
-//                judgement()
-//                printSem()
-//            }
-//
-//            override fun onNothingSelected(parent: AdapterView<*>) {}
-//        }
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                while (semList[0].isEmpty() || semList[1].isEmpty()) {
+                    Thread.sleep(100)
+                }
+                judgement()
+                printSem()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
 
         clearButton.setOnClickListener {
             courseCodeEditText.text.clear()
@@ -127,6 +130,7 @@ class MainActivity : AppCompatActivity() {
                 printSem()
             }
         }
+
     }
 
     @Deprecated("Deprecated in Java")
@@ -151,6 +155,7 @@ class MainActivity : AppCompatActivity() {
                 sem1Stat.text = e.message
             }
         }.start()
+        okGet = true
     }
 
     private fun getTableData(): MutableList<MutableList<Map<String, Any>>> {
@@ -160,7 +165,7 @@ class MainActivity : AppCompatActivity() {
         val responseCode = conn.responseCode
         if (responseCode != 200) {
             runOnUiThread {
-                sem1Stat.text = responseCode.toString()
+                Toast.makeText(this, responseCode.toString(), Toast.LENGTH_SHORT).show()
             }
             return mutableListOf()
         }
@@ -214,16 +219,14 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun judgement() {
+        if (!okGet) {
+            return
+        }
         for (index in semList.indices) {
             val subList = semList[index]
             caches[index] = formatSem(subList)
-            if (caches[index] == "\n") {
-                stats[index] = "未在Sem ${index + 1}中找到相关课程 :-("
-            } else {
-                stats[index] = "Sem ${index + 1}中找到以下相关课程:"
-            }
-        }
 
+        }
         for (index in sortedSemList.indices) {
             val subList = sortedSemList[index]
             cachesSorted[index] = formatSem(subList)
@@ -251,6 +254,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun printSem() {
         runOnUiThread {
+            for (index in stats.indices) {
+                if (caches[index] == "\n") {
+                    stats[index] = "未在Sem ${index + 1}中找到相关课程 :-("
+                } else {
+                    stats[index] = "Sem ${index + 1}中找到以下相关课程:"
+                }
+            }
             sem1Stat.text = stats[0]
             sem2Stat.text = stats[1]
             if (isSorted) {
