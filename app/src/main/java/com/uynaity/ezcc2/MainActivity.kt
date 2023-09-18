@@ -31,9 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var switch2: Switch
     private lateinit var switch3: Switch
     private lateinit var sem1Stat: TextView
-    private lateinit var sem1Data: TextView
     private lateinit var sem2Stat: TextView
-    private lateinit var sem2Data: TextView
     private lateinit var listView1: RecyclerView
     private lateinit var listView2: RecyclerView
     private lateinit var adapter1: ListAdapter
@@ -80,9 +78,7 @@ class MainActivity : AppCompatActivity() {
         switch2 = findViewById(R.id.switch2)
         switch3 = findViewById(R.id.switch3)
         sem1Stat = findViewById(R.id.sem1Stat)
-        sem1Data = findViewById(R.id.Sem1Data)
         sem2Stat = findViewById(R.id.Sem2Stat)
-        sem2Data = findViewById(R.id.Sem2Data)
         listView1 = findViewById(R.id.listView1)
         listView2 = findViewById(R.id.listView2)
         adapter1 = ListAdapter()
