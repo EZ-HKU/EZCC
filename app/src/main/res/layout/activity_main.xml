@@ -132,16 +132,16 @@
             android:hint="@string/course_code"
             android:inputType="number"
             android:maxLength="4"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/refresh"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_height="match_parent"
             android:contentDescription="@string/refresh"
-            android:text="刷新" />
+            android:text="刷新"
+            android:textSize="14sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -160,21 +160,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
-            android:text="@string/noOfEmpty" />
+            android:text="@string/noOfEmpty"
+            android:textSize="12sp" />
 
         <Switch
             android:id="@+id/switch2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
-            android:text="@string/exceptX" />
+            android:text="@string/exceptX"
+            android:textSize="12sp" />
 
         <Switch
             android:id="@+id/switch3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
-            android:text="@string/viewAvailable" />
+            android:text="@string/viewAvailable"
+            android:textSize="12sp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

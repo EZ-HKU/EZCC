@@ -7,6 +7,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -87,6 +88,7 @@ class MainActivity : AppCompatActivity() {
         adapter1 = ListAdapter()
         adapter2 = ListAdapter()
 
+
         val spinner = findViewById<Spinner>(R.id.spinner)
         val adapter = ArrayAdapter.createFromResource(
             this, R.array.spinner_options, android.R.layout.simple_spinner_item
@@ -114,7 +116,7 @@ class MainActivity : AppCompatActivity() {
 
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long
+                parent: AdapterView<*>?, view: View?, position: Int, id: Long
             ) {
                 while (semList[0].isEmpty() || semList[1].isEmpty()) {
                     Thread.sleep(100)
@@ -158,6 +160,18 @@ class MainActivity : AppCompatActivity() {
             judgement()
             printSem()
         }
+
+        adapter1.setOnItemClickListener(object : ListAdapter.OnItemClickListener {
+            override fun onItemClick(item: String) {
+                Toast.makeText(this@MainActivity, "功能开发中...", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        adapter2.setOnItemClickListener(object : ListAdapter.OnItemClickListener {
+            override fun onItemClick(item: String) {
+                Toast.makeText(this@MainActivity, "功能开发中...", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     @Deprecated("Deprecated in Java")
@@ -180,7 +194,8 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 runOnUiThread {
-                    Toast.makeText(this, "更新失败，请检查网络链接，程序退出", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "更新失败，请检查网络链接，程序退出", Toast.LENGTH_LONG)
+                        .show()
                 }
                 finish()
             }
@@ -232,11 +247,11 @@ class MainActivity : AppCompatActivity() {
             var stat = ""
 
             if (data2 > data3) {
-                stat = "尚有余，可选\n"
+                stat = "尚有余，可选"
             } else if (data3 - data2 <= 3) {
-                stat = "少量不足，可备选\n"
+                stat = "少量不足，可备选"
             } else if (data3 - data2 > 3) {
-                stat = "严重不足，建议更换\n"
+                stat = "严重不足，建议更换"
             }
             val dataSet = mapOf(
                 "课程代码" to data1,
@@ -282,7 +297,7 @@ class MainActivity : AppCompatActivity() {
             val spinner = findViewById<Spinner>(R.id.spinner)
             val selectedValue = spinner.selectedItem.toString()
             val c = courseCodeEditText.text.toString()
-            val mergeC = "$selectedValue$c"
+            val mergeC = "CC${selectedValue}${c}"
             if (!i["课程代码"].toString().contains(mergeC)) {
                 continue
             }
@@ -307,7 +322,7 @@ class MainActivity : AppCompatActivity() {
                 if (caches[index].isEmpty()) {
                     stats[index] = "未在Sem ${index + 1}中找到相关课程 :-("
                 } else {
-                    stats[index] = "Sem ${index + 1}中找到以下相关课程:"
+                    stats[index] = "Sem ${index + 1}中找到以下课程:"
                 }
             }
             sem1Stat.text = stats[0]

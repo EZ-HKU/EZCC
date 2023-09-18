@@ -13,9 +13,9 @@
     <string name="viewAvailable">仅看有余</string>
 
     <string-array name="spinner_options">
-        <item>CCST</item>
-        <item>CCHU</item>
-        <item>CCGL</item>
-        <item>CCCH</item>
+        <item>ST</item>
+        <item>HU</item>
+        <item>GL</item>
+        <item>CH</item>
     </string-array>
 </resources>
