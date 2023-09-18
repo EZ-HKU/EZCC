@@ -96,8 +96,6 @@ class MainActivity : AppCompatActivity() {
 
         Toast.makeText(this, "正在更新数据库", Toast.LENGTH_SHORT).show()
         updateTableData()
-        Toast.makeText(this, "数据库更新成功", Toast.LENGTH_SHORT).show()
-
 
         courseCodeEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -175,7 +173,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateTableData() {
         Thread {
-            semList = getTableData()
+            try {
+                semList = getTableData()
+                runOnUiThread {
+                    Toast.makeText(this, "更新成功", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    Toast.makeText(this, "更新失败，请检查网络链接，程序退出", Toast.LENGTH_LONG).show()
+                }
+                finish()
+            }
+
             sortedSemList = semList.map { sem ->
                 sem.sortedByDescending { it["空余数量"] as Int }.toMutableList()
             }.toMutableList()
