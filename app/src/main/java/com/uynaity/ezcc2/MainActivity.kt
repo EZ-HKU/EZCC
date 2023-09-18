@@ -1,24 +1,26 @@
 package com.uynaity.ezcc2
 
 import android.annotation.SuppressLint
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
 import android.os.Bundle
-import android.widget.Switch
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
-import org.jsoup.Jsoup
-import java.net.HttpURLConnection
-import java.net.URL
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
 import android.widget.Spinner
-import android.content.Context
-import android.os.VibrationEffect
-import android.os.Vibrator
+import android.widget.Switch
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import org.jsoup.Jsoup
+import java.net.HttpURLConnection
+import java.net.URL
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")
 class MainActivity : AppCompatActivity() {
@@ -31,6 +33,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sem1Data: TextView
     private lateinit var sem2Stat: TextView
     private lateinit var sem2Data: TextView
+    private lateinit var listView1: RecyclerView
+    private lateinit var listView2: RecyclerView
+    private lateinit var adapter1: ListAdapter
+    private lateinit var adapter2: ListAdapter
     private var backPressedTime: Long = 0
     private val backPressedInterval = 2000
     private var isSorted = false
@@ -38,10 +44,10 @@ class MainActivity : AppCompatActivity() {
     private var isAvailable = false
 
     private var caches = mutableListOf(
-        "", ""
+        mutableListOf<String>(), mutableListOf()
     )
     private var cachesSorted = mutableListOf(
-        "", ""
+        mutableListOf<String>(), mutableListOf()
     )
     private var stats = mutableListOf(
         "", ""
@@ -76,6 +82,10 @@ class MainActivity : AppCompatActivity() {
         sem1Data = findViewById(R.id.Sem1Data)
         sem2Stat = findViewById(R.id.Sem2Stat)
         sem2Data = findViewById(R.id.Sem2Data)
+        listView1 = findViewById(R.id.listView1)
+        listView2 = findViewById(R.id.listView2)
+        adapter1 = ListAdapter()
+        adapter2 = ListAdapter()
 
         val spinner = findViewById<Spinner>(R.id.spinner)
         val adapter = ArrayAdapter.createFromResource(
@@ -123,6 +133,9 @@ class MainActivity : AppCompatActivity() {
             judgement()
             printSem()
             VibrationUtil.vibrate(this, 50)
+            while (semList[0].isEmpty() || semList[1].isEmpty()) {
+                Thread.sleep(100)
+            }
             Toast.makeText(this, "刷新成功", Toast.LENGTH_SHORT).show()
         }
 
@@ -162,14 +175,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateTableData() {
         Thread {
-            try {
-                semList = getTableData()
-                sortedSemList = semList.map { sem ->
-                    sem.sortedByDescending { it["空余数量"] as Int }.toMutableList()
-                }.toMutableList()
-            } catch (e: Exception) {
-                sem1Stat.text = e.message
-            }
+            semList = getTableData()
+            sortedSemList = semList.map { sem ->
+                sem.sortedByDescending { it["空余数量"] as Int }.toMutableList()
+            }.toMutableList()
         }.start()
     }
 
@@ -232,22 +241,34 @@ class MainActivity : AppCompatActivity() {
         return semList
     }
 
+
     @SuppressLint("SetTextI18n")
     private fun judgement() {
         for (index in semList.indices) {
             val subList = semList[index]
             caches[index] = formatSem(subList)
-
         }
+
         for (index in sortedSemList.indices) {
             val subList = sortedSemList[index]
             cachesSorted[index] = formatSem(subList)
         }
-
     }
 
-    private fun formatSem(sem: MutableList<Map<String, Any>>): String {
+    private fun formatCourse(course: Map<String, Any>): String {
         var str = ""
+        for (i in course) {
+            str += if (i.key == "选课建议") {
+                "${i.key}: ${i.value}"
+            } else {
+                "${i.key}: ${i.value}\n"
+            }
+        }
+        return str
+    }
+
+    private fun formatSem(sem: MutableList<Map<String, Any>>): MutableList<String> {
+        val courseList = mutableListOf<String>()
         for (i in sem) {
             val spinner = findViewById<Spinner>(R.id.spinner)
             val selectedValue = spinner.selectedItem.toString()
@@ -266,19 +287,15 @@ class MainActivity : AppCompatActivity() {
                     continue
                 }
             }
-
-            for (j in i) {
-                str += "${j.key}: ${j.value}\n"
-            }
+            courseList.add(formatCourse(i))
         }
-        str += "\n"
-        return str
+        return courseList
     }
 
     private fun printSem() {
         runOnUiThread {
             for (index in stats.indices) {
-                if (caches[index] == "\n") {
+                if (caches[index].isEmpty()) {
                     stats[index] = "未在Sem ${index + 1}中找到相关课程 :-("
                 } else {
                     stats[index] = "Sem ${index + 1}中找到以下相关课程:"
@@ -286,12 +303,24 @@ class MainActivity : AppCompatActivity() {
             }
             sem1Stat.text = stats[0]
             sem2Stat.text = stats[1]
+
             if (isSorted) {
-                sem1Data.text = cachesSorted[0]
-                sem2Data.text = cachesSorted[1]
+                adapter1.setDataList(cachesSorted[0])
+                this.listView1.layoutManager = LinearLayoutManager(this)
+                this.listView1.adapter = adapter1
+
+                adapter2.setDataList(cachesSorted[1])
+                listView2.layoutManager = LinearLayoutManager(this)
+                listView2.adapter = adapter2
+
             } else {
-                sem1Data.text = caches[0]
-                sem2Data.text = caches[1]
+                adapter1.setDataList(caches[0])
+                listView1.layoutManager = LinearLayoutManager(this)
+                listView1.adapter = adapter1
+
+                adapter2.setDataList(caches[1])
+                listView2.layoutManager = LinearLayoutManager(this)
+                listView2.adapter = adapter2
             }
         }
     }

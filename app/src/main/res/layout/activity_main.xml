@@ -38,6 +38,11 @@
                 android:layout_marginBottom="8dp"
                 android:background="#000000" />
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/listView1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -78,6 +83,11 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:background="#000000" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/listView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <ScrollView
                 android:layout_width="match_parent"
